@@ -37,9 +37,50 @@ app.delete('/todos/:id', (req, res) => {
   res.status(204).send(); // Silent success
 });
 
+// GET Completed - Custom Read
 app.get('/todos/completed', (req, res) => {
   const completed = todos.filter((t) => t.completed);
   res.json(completed); // Custom Read!
+});
+
+// GET Single - Read by ID
+app.get("/todos/:id", (req, res) => {
+  const todo = todos.find((t) => t.id === parseInt(req.params.id));
+
+  if (!todo) {
+    return res.status(404).json({ message: 'Todo not found' });
+  }
+
+  res.status(200).json(todo);
+});
+
+// POST New (With Valdiation) - Create
+app.post('/todos', (req, res) => {
+  console.log(req.body);
+
+  const { task } = req.body;
+
+  if (!task || task.trim() === '') {
+    return res.status(400).json({
+      message: "Field 'task' is required",
+    });
+  }
+
+  const newTodo = {
+    id: todos.length + 1,
+    task,
+    completed: false,
+  };
+
+  todos.push(newTodo);
+
+  res.status(201).json(newTodo);
+});
+
+// GET Active
+app.get('/todos/active', (req, res) => {
+  const active = todos.filter((t) => !t.completed);
+  res.json(active);
 });
 
 app.use((err, req, res, next) => {
